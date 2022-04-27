@@ -36,12 +36,8 @@ void cssh_shell(){
 			continue;
 		}
 
-        if(!strcmp(argv[0],"exit")){		// check for "exit" command (built-in)
-            for(int j = 0; j < 5; j++){
-				exit(0);					// temporary loop to force an exit because sometimes exit doesnt work
-				j++;
-			}
-        }
+        if((strcmp(argv[0],"exit"))==0){		// check for "exit" command (built-in)
+            exit(0);
 
 		if (!strcmp(argv[0], "cd")){		// built in cd command
 			directory = argv[1];			// takes the dir from stdin for chdir()
