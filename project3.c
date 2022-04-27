@@ -1,65 +1,111 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
-#include <string.h>
+#include <signal.h>
 
-void read_command(char cmd[], char *par[]){
+#define	MAX_SIZE_CMD	256
+#define	MAX_SIZE_ARG	16
+#define TAM 1000
 
-    char line[1024];
-    int count = 0, i = 0, j = 0;
-    char *array[100], *pch;
+char cmd[MAX_SIZE_CMD];				// string holder for the command
+char *argv[MAX_SIZE_ARG];			// an array for command and arguments
+pid_t pid;					// global variable for the child process ID
+char i;						// global for loop counter
+char *directory;			// path for the directory 
 
-    //reads just one line 
-    for ( ;; ){
-        int c = fgetc(stdin);
-        line[count++] = (char)c;
-        if (c == '\n') break;
-    }
-    if (count == 1) return;
-    pch = strtok (line," \n");
+void get_cmd();					// get command string from the user
+void convert_cmd();				// convert the command string to the required format by execvp()
+void c_shell();					// to start the shell
 
-    // parses the line into words
-    while (pch != NULL){
-        array[i++] = strdup(pch);
-        pch = strtok(NULL, " \n");
-    }
-    // gets the command
-    strcpy (cmd,array[0]);
-
-    // gets the other parameters (words)
-    for (int j = 0; j < i; j++){
-        par[j] = array[j];
-    par[i] = NULL; // it will terminate the parameter list 
-    }
-}
+char error_message[30] = "An error has occurred\n"; // error message
 
 int main(){
+	// tie the handler to the SGNCHLD signal
 
-    char cmd[100];
-    char command[100];
-    char *parameters[20];
+	// start the shell
+	c_shell();
 
-    char *envp[] = {(char*) "PATH=/bin",0};
+	return 0;
+}
 
-    // init loop to run the shell forever
-    while(1) { 
+void c_shell(){
+	while(1){
+		// get the command from user
+		get_cmd();
+		convert_cmd();
 
-        printf("ccsh> ");
-        read_command(command,parameters); // reads the user input from terminal 
+		// bypass empty commands
+		if(!strcmp(argv[0],"")){
+			continue;
+		}
 
-        if(fork() != 0){ // init parent
-            wait (NULL); // waits for the child
+		// check for "exit" commandf
+        if(!strcmp(argv[0],"exit")){
+            exit(0);
         }
-        else{
-            strcpy(cmd, "/bin");
-            strcat(cmd, command);
-            execve(cmd,parameters,envp); //execute the command
-        }
-        if (strcmp (command,"exit") == 0){
-            break;
-        }
-    }
-    return 0; 
 
+		// built in cd command
+		if (!strcmp(argv[0], "cd")){
+			directory = argv[1];
+			// prints error messafe if args were empty (instead of seg fault) or if dir not foudn
+			if(chdir(directory) == -1 || strlen(directory) == 0){
+				write(STDERR_FILENO, error_message, strlen(error_message));			
+				}
+			continue;
+        }  
+
+		// fit the command into *argv[]
+
+		// fork and execute the command
+		pid = fork();
+		if(-1 == pid){
+			printf("failed to create a child\n");
+		}
+		else if(0 == pid){
+			// printf("hello from child\n");
+			// execute a command
+			execvp(argv[0], argv);
+		}
+		else{
+			// printf("hello from parent\n");
+			// wait for the command to finish if "&" is not present
+			if(NULL == argv[i]) waitpid(pid, NULL, 0);
+		}
+	}
+}
+
+// change-directory built in command
+
+
+
+void get_cmd(){
+	// get command from user
+	printf("ccsh> ");
+	fgets(cmd, MAX_SIZE_CMD, stdin);
+	// remove trailing newline
+	if ((strlen(cmd) > 0) && (cmd[strlen (cmd) - 1] == '\n'))
+        	cmd[strlen (cmd) - 1] = '\0';
+}
+
+void convert_cmd(){
+	// split string into argv
+	char *ptr;
+	i = 0;
+	ptr = strtok(cmd, " ");
+	while(ptr != NULL){
+		argv[i] = ptr;
+		i++;
+		ptr = strtok(NULL, " ");
+	}
+
+	// check for "&"
+	if(!strcmp("&", argv[i-1])){
+	argv[i-1] = NULL;
+	argv[i] = "&";
+	}else{
+	argv[i] = NULL;
+	}
 }
