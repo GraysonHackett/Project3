@@ -3,6 +3,5 @@ Things left to do :
 1. Implement the built-in for path 
 2. Parrallel command mode
 3. Batch mode
-4. exit upon EOF marker
-5. Make sure the only error messages printing at the ones from the pdf 
-6. markdown file for how to build the program 
+4. Make sure the only error messages printing at the ones from the pdf 
+5. markdown file for how to build the program 
