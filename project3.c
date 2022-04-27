@@ -5,8 +5,9 @@
 #include <sys/wait.h>
 #include <unistd.h>
 #include <signal.h>
-#define	MAX_SIZE_CMD	256
-#define	MAX_SIZE_ARG	16
+
+#define	MAX_SIZE_CMD	256			// sets the max size that a command can be
+#define	MAX_SIZE_ARG	64			// '' arguments can be 
 
 char cmd[MAX_SIZE_CMD];				// string holder for the command
 char *argv[MAX_SIZE_ARG];			// an array for command and arguments
@@ -16,17 +17,17 @@ char *directory;					// path for the directory
 
 void get_cmd();						// get command string from the user
 void convert_cmd();					// convert the command string to the required format by execvp()
-void c_shell();						// to start the shell
+void cssh_shell();						// to start the shell
 
 char error_message[30] = "An error has occurred\n"; // error message
 
 int main(){						
-	c_shell();						// start the shell
+	cssh_shell();						// start the shell
 
 	return 0;
 }
 
-void c_shell(){
+void cssh_shell(){
 	while(1){
 		get_cmd();					// get the command from user
 		convert_cmd(); 				// put the command into argv
