@@ -6,8 +6,9 @@ if (!strcmp(args[0],"path")){
 	}
 
 
-in main ---
-	    const char * ccsh_path = getenv("$PATH");
+// add this to main under char **args;
+const char * ccsh_path = getenv("$PATH");
+setenv("$PATH","\\bin",1);   
 
 if (!strcmp(args[0],"path")){
 		if(setenv("$PATH","\\usr\\bin\\usr",1) == 0) printf("yes\n");
