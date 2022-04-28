@@ -1,7 +1,7 @@
 #include <stdio.h> // for getline(), printf(), fopen()
 #include <stdlib.h> // for exit(), free()
 #include <string.h> // for strsep()
-#include <unistd.h> // for fork(), execv()
+#include <unistd.h> // for fork(), execv(), getcwd(), chdir()
 #include <sys/wait.h> // for wait(), waitpid()
 
 #define MAX_LINE 255
@@ -12,7 +12,6 @@ char* read_lineIM();
 char** parse_line(char *);
 void run_line(char **);
 
-int numTok = 0;
 char error_message[30] = "An error has occurred\n"; 
 
 // read line in interactive mode 
@@ -40,7 +39,7 @@ char* read_lineIM() {
 
 // parse line in interactive mode 
 char** parse_line(char *line){
-    numTok = 0;
+    int numTok = 0;
     char *p = line;
     char **tokens = malloc(MAX_ARG * sizeof(char*));
     char *token;
@@ -56,14 +55,13 @@ char** parse_line(char *line){
 }
 
 void run_line(char **args) {
-    pid_t cpid;
-    int status;
+    pid_t pid;
 
-    if ((cpid = fork()) == 0) {
+    if ((pid = fork()) == 0) {
         execvp(args[0], args);
         _exit(1);//temporary
-    } else if (cpid > 0) {
-        waitpid(cpid, &status, WUNTRACED);
+    } else if (pid > 0) {
+        waitpid(pid, NULL, 0);
     } else{
         write(STDERR_FILENO, error_message, strlen(error_message));
     }
@@ -84,17 +82,16 @@ int cd_cmd(char **args){
     return cd;
 }
 
-int path_cmd(char **args) {
-    
-}
+// int path_cmd(char **args) {
+
+// }
 
 int main(int argc, char* argv[]) {
     char *line;
     char **args;
-    int cmdCount = 0;
 
     if (argc <= 1){ // interactive mode 
-        do {
+        while(1) {
             printf(SHELL_PROMPT); 
             fflush(stdout);  
             line = read_lineIM();   // read input 
@@ -102,8 +99,7 @@ int main(int argc, char* argv[]) {
             run_line(args);
             free(line);
             free(args);
-        } while (1);
-        return 0;
+        } 
     } else { // batch mode
         printf("\n");
 /*         fflush(stdout);  
@@ -113,6 +109,6 @@ int main(int argc, char* argv[]) {
         free(line);
         free(args); */
     }
-
+    return 0;
    
 }
