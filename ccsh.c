@@ -104,7 +104,6 @@ int cd_cmd(char **args){
 int main(int argc, char* argv[]) {
     char *line;
     char **args;
-    char* path = setenv("/bin");
     if (argc <= 1){ // interactive mode 
         while(1) {
             printf("ccsh> "); 
