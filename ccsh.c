@@ -62,7 +62,7 @@ void run_line(char **args) {
 		exit(0);
 	}
 
-	if (!strcmp(args[0], "cd")){		
+	if (!strcmp(args[0], "cd")){   //built-in path	
 		directory = args[1];			
 		if(chdir(directory) == -1 || strlen(directory) == 0){			
 			write(STDERR_FILENO, error_message, strlen(error_message));			
@@ -105,12 +105,7 @@ int main(int argc, char* argv[]) {
             fflush(stdout);  
             line = read_lineIM();   // read input 
             args = parse_line(line);    // parse input 
-
-			
-			if(!strcmp(argv[0],"exit")){	// built-in exit
-				exit(0);
-			} 
-
+	    if(!strcmp("",line)) continue;
             run_line(args);
             free(line);
             free(args);
