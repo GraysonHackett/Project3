@@ -63,11 +63,10 @@ void run_line(char **args) {
 	}
 
 	if (!strcmp(args[0], "cd")){		
-		directory = argv[1];			
+		directory = args[1];			
 		if(chdir(directory) == -1 || strlen(directory) == 0){			
 			write(STDERR_FILENO, error_message, strlen(error_message));			
 			}
-		continue;
         } 
 
     if ((pid = fork()) == 0) {
