@@ -4,3 +4,10 @@ if (!strcmp(args[0],"path")){
 		snprintf(cur_path, sizeof(char)*1000,"%s%s",cur_path,new_path);
 		setenv("$PATH",cur_path,1);
 	}
+
+
+
+
+if (!strcmp(args[0],"path")){
+		if(setenv("$PATH","\\usr\\bin\\usr",1) == 0) printf("yes\n");
+	}
