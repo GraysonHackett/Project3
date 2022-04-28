@@ -56,7 +56,11 @@ char** parse_line(char *line){
 
 void run_line(char **args) {
     pid_t pid;
-
+    
+    if(!strcmp(argv[0],"exit")){   //built-in exit
+		exit(0);
+	}
+    
     if ((pid = fork()) == 0) {
         execvp(args[0], args);
         _exit(1);//temporary
