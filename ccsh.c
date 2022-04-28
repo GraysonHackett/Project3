@@ -13,6 +13,7 @@ void run_line(char **);
 
 char error_message[30] = "An error has occurred\n"; 
 char cwd[256];
+char *set_path = "/bin/";
 char *directory;
 
 // read line in interactive mode 
@@ -52,7 +53,9 @@ char** parse_line(char *line){
     while ((token = strsep(&p, " t\v\f\r\n")) != NULL) { 
         tokens[numTok] = token;
         numTok++;
-        printf("Tokens: %s\n", tokens[numTok]);
+    }
+    for (int i = 0; i < numTok; i++) {
+        printf("Token[%d]: %s\n", i, tokens[i]);
     }
     free(p);
     free(token);
@@ -64,12 +67,15 @@ char** parse_line(char *line){
 void run_line(char **args) {
     pid_t pid;
 
-
 	if(!strcmp(args[0],"exit")){   //built-in exit
 		exit(0);
 	}
 
+
+
 	if (!strcmp(args[0], "cd")){	
+        strcpy(set_path, cwd);
+        strcat(set_path, args[0]);
         cd_cmd(args);
     }	
 
