@@ -24,8 +24,6 @@ char* read_lineIM() {
     if ((nread = getline(&line, &len, stdin)) == -1) {
         exit(0); // EOF
     }
-    //line[nread-1] = '\0'; // strip off newline
-    printf("Line: %s\n", line);
     return line;
 }
 
@@ -50,17 +48,23 @@ char** parse_line(char *line){
     char *p = line;
     char **tokens = malloc(MAX_ARG * sizeof(char*));
     char *token;
+
+    while(isspace(*p)) p++; // trim leading whitepace
+
     while ((token = strsep(&p, " t\v\f\r\n")) != NULL) { 
         tokens[numTok] = token;
         numTok++;
     }
-    for (int i = 0; i < numTok; i++) {
-        printf("Token[%d]: %s\n", i, tokens[i]);
-    }
+
     free(p);
     free(token);
     tokens[numTok-1] = '\0'; // strip newline character
     tokens[numTok] = NULL;
+
+   for (int i = 0; i < numTok; i++) {
+        printf("Token[%d]: %s\n", i, tokens[i]);
+    }
+
     return tokens;
 }
   
@@ -70,8 +74,6 @@ void run_line(char **args) {
 	if(!strcmp(args[0],"exit")){   //built-in exit
 		exit(0);
 	}
-
-
 
 	if (!strcmp(args[0], "cd")){	
         strcpy(set_path, cwd);
