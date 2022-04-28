@@ -8,6 +8,7 @@
 #define MAX_ARG 16
 #define SHELL_PROMPT "ccsh> "
 
+char *directory;
 char* read_lineIM();
 char** parse_line(char *);
 void run_line(char **);
@@ -56,11 +57,19 @@ char** parse_line(char *line){
 
 void run_line(char **args) {
     pid_t pid;
-    
-    if(!strcmp(argv[0],"exit")){   //built-in exit
+
+	if(!strcmp(args[0],"exit")){   //built-in exit
 		exit(0);
 	}
-    
+
+	if (!strcmp(args[0], "cd")){		
+		directory = argv[1];			
+		if(chdir(directory) == -1 || strlen(directory) == 0){			
+			write(STDERR_FILENO, error_message, strlen(error_message));			
+			}
+		continue;
+        } 
+
     if ((pid = fork()) == 0) {
         execvp(args[0], args);
         _exit(1);//temporary
@@ -72,9 +81,6 @@ void run_line(char **args) {
     
 }
 
-int exit_cmd(char **args){
-    exit(0);
-}
 
 int cd_cmd(char **args){
     int cd = 0;
@@ -100,6 +106,12 @@ int main(int argc, char* argv[]) {
             fflush(stdout);  
             line = read_lineIM();   // read input 
             args = parse_line(line);    // parse input 
+
+			
+			if(!strcmp(argv[0],"exit")){	// built-in exit
+				exit(0);
+			} 
+
             run_line(args);
             free(line);
             free(args);
