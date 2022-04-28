@@ -118,6 +118,7 @@ int main(int argc, char* argv[]) {
             fflush(stdout);  
             line = read_lineIM();   // read input 
             args = parse_line(line);    // parse input 
+            if(!strcmp(args,"")) continue;	
             run_line(args);
             free(line);
             free(args);
