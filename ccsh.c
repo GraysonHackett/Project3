@@ -1,25 +1,30 @@
 #include <stdio.h> // for getline(), printf(), fopen()
 #include <stdlib.h> // for exit(), free()
-#include <string.h> // for strsep()
-#include <unistd.h> // for fork(), execv(), getcwd(), chdir()
+#include <string.h> // for strsep(), strcmp()
+#include <unistd.h> // for fork(), execvp(), getcwd(), chdir()
 #include <sys/wait.h> // for wait(), waitpid()
 
 #define MAX_LINE 255
 #define MAX_ARG 16
-#define SHELL_PROMPT "ccsh> "
 
-char *directory;
 char* read_lineIM();
 char** parse_line(char *);
 void run_line(char **);
 
 char error_message[30] = "An error has occurred\n"; 
+char cwd[256];
+char *directory;
 
 // read line in interactive mode 
 char* read_lineIM() {
     char *line = NULL;
     size_t len = 0; 
-    getline(&line, &len, stdin);
+    ssize_t nread;
+    if ((nread = getline(&line, &len, stdin)) == -1) {
+        exit(0); // EOF
+    }
+    //line[nread-1] = '\0'; // strip off newline
+    printf("Line: %s\n", line);
     return line;
 }
 
@@ -44,30 +49,30 @@ char** parse_line(char *line){
     char *p = line;
     char **tokens = malloc(MAX_ARG * sizeof(char*));
     char *token;
-    
-    while ((token = strsep(&p, " \t\v\f\r\n")) != NULL) {
+    while ((token = strsep(&p, " t\v\f\r\n")) != NULL) { 
         tokens[numTok] = token;
         numTok++;
+        printf("Tokens: %s\n", tokens[numTok]);
     }
+    free(p);
     free(token);
     tokens[numTok-1] = '\0'; // strip newline character
     tokens[numTok] = NULL;
     return tokens;
 }
-
+  
 void run_line(char **args) {
     pid_t pid;
+
 
 	if(!strcmp(args[0],"exit")){   //built-in exit
 		exit(0);
 	}
 
-	if (!strcmp(args[0], "cd")){   //built-in path	
-		directory = args[1];			
-		if(chdir(directory) == -1 || strlen(directory) == 0){			
-			write(STDERR_FILENO, error_message, strlen(error_message));			
-			}
-        } 
+	if (!strcmp(args[0], "cd")){	
+        cd_cmd(args);
+    }	
+
 
     if ((pid = fork()) == 0) {
         execvp(args[0], args);
@@ -87,6 +92,7 @@ int cd_cmd(char **args){
         write(STDERR_FILENO, error_message, strlen(error_message));
     } else {
         cd = chdir(args[1]);
+        getcwd(cwd, sizeof(cwd));
     }
     return cd;
 }
@@ -98,14 +104,13 @@ int cd_cmd(char **args){
 int main(int argc, char* argv[]) {
     char *line;
     char **args;
-
+    char* path = setenv("/bin");
     if (argc <= 1){ // interactive mode 
         while(1) {
-            printf(SHELL_PROMPT); 
+            printf("ccsh> "); 
             fflush(stdout);  
             line = read_lineIM();   // read input 
             args = parse_line(line);    // parse input 
-	    if(!strcmp("",line)) continue;
             run_line(args);
             free(line);
             free(args);
