@@ -4,11 +4,8 @@
 #include <unistd.h> // for fork(), execv(), getcwd(), chdir()
 #include <sys/wait.h> // for wait(), waitpid()
 
-#define MAX_LINE 255
 #define MAX_ARG 16
-#define SHELL_PROMPT "ccsh> "
 
-char path[] = "/bin";
 char *directory;
 char* read_lineIM();
 char** parse_line(char *);
