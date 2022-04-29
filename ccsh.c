@@ -6,9 +6,7 @@
 
 #define MAX_LINE 255
 #define MAX_ARG 16
-#define SHELL_PROMPT "ccsh> "
 
-char path[] = "/bin";
 char *directory;
 char* read_lineIM();
 char** parse_line(char *);
@@ -24,19 +22,27 @@ char* read_lineIM() {
 }
 
 // read line in batch mode 
-/* char *read_lineBM(char* filename){
+char *read_lineBM(char* filename){
     FILE *stream;
     char *line = NULL;
     size_t len = 0; 
     ssize_t nread;
     int i;
+    char **tokens = malloc(MAX_ARG * sizeof(char*));
+    char *token;
+    int numTok = 0;
     stream = fopen(filename, "r");
     if (stream == NULL) {
-        perror(argv[1]);
         exit(1));
     }
+    while(nread = getline(&line, &len, stdin) != -1) {
+        tokens[numTok] = token;
+        numTok++;
+    }
+    free(token);
+    fclose(fp);
     return line;
-} */
+}
 
 
 // parse line in interactive mode 
@@ -100,7 +106,7 @@ int main(int argc, char* argv[]) {
 
     if (argc <= 1){ // interactive mode
         while(1) {
-            printf(SHELL_PROMPT); 
+            printf("ccsh> "); 
             fflush(stdout);  
             line = read_lineIM();   // read input 
 	    	  args = parse_line(line);    // parse input
@@ -111,12 +117,11 @@ int main(int argc, char* argv[]) {
         } 
     } else { // batch mode
         printf("\n");
-/*         fflush(stdout);  
-        line = read_lineBM();   // read input 
-        args = parse_line(line);    // parse input 
+        fflush(stdout);  
+        line = read_lineBM();   // read input and parse
         run_line(args);
         free(line);
-        free(args); */
+        free(args);
     }
     return 0;
    
