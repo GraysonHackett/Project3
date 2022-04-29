@@ -94,7 +94,7 @@ int main(int argc, char* argv[]) {
 
     if (argc <= 1){ // interactive mode
         while(1) {
-            printf(SHELL_PROMPT); 
+            printf("ccsh> "); 
             fflush(stdout);  
             line = read_lineIM();   // read input 
 	    args = parse_line(line);    // parse input
