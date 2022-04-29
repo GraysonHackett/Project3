@@ -82,7 +82,7 @@ void run_line(char **args) {
 	strcat(path,args[0]);
 	
     	if ((pid = fork()) == 0) {
-        	execvp(args[0], args);
+        	execv(path, args);
     	} 
     	else if (pid > 0) {
         	waitpid(pid, NULL, 0);
