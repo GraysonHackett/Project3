@@ -75,21 +75,18 @@ void run_line(char **args) {
 			}
         } 
 
-	if (!strcmp(args[0],"path")){
-		path[0] = *args[1];
-	}
-	
-	strcat(path,args[0]);
-	
-    	if ((pid = fork()) == 0) {
-        	execv(path, args);
-    	} 
-    	else if (pid > 0) {
-        	waitpid(pid, NULL, 0);
-    	} 
-    	else{
-        	write(STDERR_FILENO, error_message, strlen(error_message));
-    	}
+	pid = fork();		// fork and execute the command
+        
+	if(-1 == pid){
+            write(STDERR_FILENO, error_message, strlen(error_message));         
+        }
+        else if(0 == pid){
+            execv(path, argv);      // execute command
+
+        }
+        else{
+            if(NULL == argv[i]) waitpid(pid, NULL, 0);          // wait for the command to finish if "&" is not present
+        }
     
 }
 
@@ -103,8 +100,8 @@ int main(int argc, char* argv[]) {
             printf(SHELL_PROMPT); 
             fflush(stdout);  
             line = read_lineIM();   // read input 
-	    	  args = parse_line(line);    // parse input
-	    	  if(!strcmp(args[0],"")) continue;            
+	    args = parse_line(line);    // parse input
+	    if(!strcmp(args[0],"")) continue;            
             run_line(args);
             free(line);
             free(args);
